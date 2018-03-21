@@ -14,37 +14,61 @@ public class CancellationPage extends HttpServlet {
 		PrintWriter out = response.getWriter();
 		int seatIndex = Integer.parseInt(request.getParameter("SeatIndex"));
 		MainPage.Seat seat = MainPage.seats[seatIndex/10][seatIndex%10];
-		String letter = "" + (seat.toString().charAt(0));
-		String number = "" + (seat.toString().charAt(1));
+		String letter = "" + (seat.getLetter());
+		String number = "" + (seat.getNumber());
 		String securityCode = HtmlGen.getSecurityCode();
 
 		out.println(HtmlGen.doctype());
 		out.println(HtmlGen.title("Cancellation Form"));
+		out.println(HtmlGen.script("js/validateCancellation.js"));
 		out.println(HtmlGen.h1("Cancellation Form or seat: " + letter + number));
 		out.println(HtmlGen.p("Your security code is: " + securityCode));
-		out.println(HtmlGen.form("Display form", "get", "return true"));
-		out.println(HtmlGen.lable("UserID", "UserID"));
-		out.println(HtmlGen.input("text", "UserID")+"<br>");
-		switch (random.nextInt(2)){
+		int verificationField = random.nextInt(2);
+		String fieldName = "";
+		String seatFieldName = "";
+		
+		switch (verificationField){
 			case 0:
-				out.println(HtmlGen.lable("Phone", "Phone"));
-				out.println(HtmlGen.input("text", "Phone")+"<br>");
+				fieldName = "Phone";
+				seatFieldName = seat.getPhone();
 				break;
 			case 1:
-				out.println(HtmlGen.lable("Address", "Address"));
-				out.println(HtmlGen.input("text", "Address")+"<br>");
+				fieldName = "Address";
+				seatFieldName = seat.getAddress();
 				break;
 			case 2:
-				out.println(HtmlGen.lable("Email", "Email"));
-				out.println(HtmlGen.input("text", "Email")+"<br>");
+				fieldName = "Email";
+				seatFieldName = seat.getEmail();
 				break;
 			default:
 				break;
 		}
 
-		out.println(HtmlGen.lable("Security code", "Security code"));
-		out.println(HtmlGen.input("text", "Security code")+"<br>");
-		out.println(HtmlGen.input("clear", "Clear"));
+		out.println(HtmlGen.form("Cancellation", "MainPage", "post", "return validateCancellation(\'" + securityCode + "\', \'"+ seat.getUserID() + "\', \'" + seatFieldName + "\');"));
+		out.println(HtmlGen.label("UserID", "UserID"));
+		out.println(HtmlGen.input("text", "UserID")+"<br>");
+		switch (verificationField){
+			case 0:
+				out.println(HtmlGen.label("Phone", "Phone"));
+				out.println(HtmlGen.input("text", "varificationField")+"<br>");
+				break;
+			case 1:
+				out.println(HtmlGen.label("Address", "Address"));
+				out.println(HtmlGen.input("text", "verificationField")+"<br>");
+				break;
+			case 2:
+				out.println(HtmlGen.label("Email", "Email"));
+				out.println(HtmlGen.input("text", "varificationField")+"<br>");
+				break;
+			default:
+				break;
+		}
+
+		out.println(HtmlGen.label("Security code", "Security code"));
+		out.println(HtmlGen.input("text", "SecurityCode")+"<br>");
+		out.println(HtmlGen.hiddeninput("lastForm", "cancellation"));
+		out.println(HtmlGen.hiddeninput("lastSeat", "" + seatIndex));
+		out.println(HtmlGen.input("reset", "Clear"));
 		out.println(HtmlGen.input("submit", "Submit"));
 		// 
 		out.println("</html>");
